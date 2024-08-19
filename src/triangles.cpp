@@ -1,3 +1,7 @@
+/*
+    Try to draw 2 triangles next to each other using glDrawArrays by adding more vertices to your data.
+*/ 
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -129,7 +133,7 @@ int main()
     /* SHADER PROGRAM ENDS HERE */
 
     /* SHADERS END HERE */
-    /* TRIANGLE STARTS HERE */
+    /* TRIANGLES STARTS HERE */
 
     // Specify the unique vertices (NDC)
     float vertices[] = {
