@@ -120,7 +120,7 @@ int main()
     }
 
     // Set program object as the current active shader
-    // glUseProgram(shaderProgram);
+    glUseProgram(shaderProgram);
 
     // De-allocate shader objects
     glDeleteShader(vertexShader);
@@ -133,9 +133,10 @@ int main()
 
     // Specify the unique vertices (NDC)
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // Lower left corner
-         0.5f, -0.5f, 0.0f, // Lower right corner
-         0.0f,  0.5f, 0.0f  // Upper corner
+         0.5f,  0.5f, 0.0f, // Top left
+         0.5f, -0.5f, 0.0f, // Bottom right
+        -0.5f, -0.5f, 0.0f, // Bottom Left
+        -0.5f,  0.5f, 0.0f // Top right
     };
 
     // Specify the indices to draw
@@ -144,10 +145,11 @@ int main()
         1, 2, 3
     };
 
-    // Generate a new Vertex Buffer Object (VBO) and Vertex Array Object (VAO)
-    unsigned int VBO, VAO;
+    // Generate a new Vertex Buffer Object (VBO), Vertex Array Object (VAO) and Element Buffer Object (EBO)
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
     // Bind the Vertex Array Object first (VAO)
     glBindVertexArray(VAO);
@@ -155,6 +157,10 @@ int main()
     // Bind the newly created VBO to the GL_ARRAY_BUFFER target and upload vertex data to the gpu
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // Bind the newly created EBO to the GL_ELEMENT_ARRAY_BUFFER target and upload vertex data to the gpu
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Specify the layout of the vertex data in the vertex buffer and enable the vertex attribute array at location 0
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -179,10 +185,11 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Draw our first triangle
+        // Draw our polygon
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // glDrawArrays(GL_TRIANGLES, 0, 3); // Used to draw a triangle
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
@@ -194,6 +201,7 @@ int main()
     // De-allocate all remaining resources
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
 
     // Close GLFW
