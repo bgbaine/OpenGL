@@ -133,19 +133,19 @@ int main()
     /* SHADER PROGRAM ENDS HERE */
 
     /* SHADERS END HERE */
-    /* TRIANGLES STARTS HERE */
+    /* TRIANGLES START HERE */
 
     // Specify the unique vertices (NDC)
     float vertices[] = {
         // first triangle
-        0.25f, -0.25f, 0.0f,    // bottom-left
-        0.75f, -0.25f, 0.0f,    // bottom-right
-        0.50f,  0.25f, 0.0f,     // top
+        0.0f,  -0.5f, 0.0f,  // left-corner
+        0.75f, -0.5f, 0.0f,  // right-corner
+        0.350f, 0.5f, 0.0f,  // top
 
         // second triangle
-       -0.25f, -0.25f, 0.0f,    // bottom-left
-       -0.75f, -0.25f, 0.0f,    // bottom-right
-       -0.50f,  0.25f, 0.0f     // top
+       -0.75f, -0.5f, 0.0f,  // left-corner
+        0.0f,  -0.5f, 0.0f,  // right-corner
+       -0.350f, 0.5f, 0.0f   // top
     };
 
     // Generate a new Vertex Buffer Object (VBO), Vertex Array Object (VAO)
@@ -171,7 +171,7 @@ int main()
     // Draw wireframe polygons
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    /* TRIANGLE ENDS HERE */
+    /* TRIANGLES END HERE */
     /* RENDERING STARTS HERE */
 
     // Render loop (each iteration is a frame)
@@ -183,11 +183,10 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Draw our polygon
+        // Draw our triangles
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6); // Used to draw a triangle
-        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         // Swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
