@@ -1,11 +1,12 @@
 /*
-    Currently draws a rectangle
+    Currently working on shaders.
 */ 
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <math.h>
 
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -16,18 +17,22 @@ const unsigned int SCR_HEIGHT = 600;
 
 // Vertex shader source code
 const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 0) in vec4 aPos;\n"
+    "layout (location = 1) in vec3 aColor;\n"
+    "out vec3 ourColor;\n"
     "void main()\n"
     "{\n"
     "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
+    "    ourColor = aColor;\n"
     "}\0";
 
 // Fragment shader source code
 const char *fragmentShaderSource = "#version 330 core\n"
+    "in vec3 ourColor;\n"
     "out vec4 FragColor;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   FragColor = vec4(ourColor, 1.0);\n"
     "}\0";
 
 int main()
@@ -133,27 +138,20 @@ int main()
     /* SHADER PROGRAM ENDS HERE */
 
     /* SHADERS END HERE */
-    /* SQUARE STARTS HERE */
+    /* TRIANGLE STARTS HERE */
 
     // Specify the unique vertices (NDC)
     float vertices[] = {
-         0.5f,  0.5f, 0.0f, // Top left
-         0.5f, -0.5f, 0.0f, // Bottom right
-        -0.5f, -0.5f, 0.0f, // Bottom Left
-        -0.5f,  0.5f, 0.0f  // Top right
-    };
-
-    // Specify the indices to draw
-    unsigned int indices[] {
-        0, 1, 3,
-        1, 2, 3
+        // positions        // colors
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Bottom Left
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom right
+         0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f  // Top
     };
 
     // Generate a new Vertex Buffer Object (VBO), Vertex Array Object (VAO) and Element Buffer Object (EBO)
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     // Bind the Vertex Array Object first (VAO)
     glBindVertexArray(VAO);
@@ -162,13 +160,13 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Bind the newly created EBO to the GL_ELEMENT_ARRAY_BUFFER target and upload vertex data to the gpu
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Specify the layout of the vertex data in the vertex buffer and enable the vertex attribute array at location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // Specify the layout of the vertex data in the vertex buffer and enable the vertex attribute array at location 0 (position attribute)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // Specify the layout of the vertex data in the vertex buffer and enable the vertex attribute array at location 1 (color attribute)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // Unbind the GL_ARRAY_BUFFER and the VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -177,7 +175,7 @@ int main()
     // Draw wireframe polygons
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    /* SQUARE ENDS HERE */
+    /* TRIANGLE ENDS HERE */
     /* RENDERING STARTS HERE */
 
     // Render loop (each iteration is a frame)
@@ -189,11 +187,17 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Draw our polygon
+        // Draw our triangle
         glUseProgram(shaderProgram);
+        
+        // Update uniform color
+        float timeValue = glfwGetTime();
+        float greenValue = (sin(timeValue) / 2) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
         glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 3); // Used to draw a triangle
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
@@ -205,7 +209,6 @@ int main()
     // De-allocate all remaining resources
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
 
     // Close GLFW
