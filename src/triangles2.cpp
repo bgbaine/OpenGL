@@ -133,28 +133,44 @@ int main()
     /* SHADER PROGRAM ENDS HERE */
 
     /* SHADERS END HERE */
-    /* TRIANGLES STARTS HERE */
+    /* TRIANGLES START HERE */
 
-    // Specify the unique vertices for the first triangle (NDC)
-    float firstVertices[] {
-        0.5f, -0.5f, 0.0f, // left-corner
-        0.0f, -0.5f, 0.0f, // right-corner
-        0.0f, 0.5f, 0.0f   // top
+    // Specify the vertices for both triangles (NDC)
+    float firstTriangle[] {
+        -0.75f, -0.5f, 0.0f,  // left-corner
+         0.0f,  -0.5f, 0.0f,  // right-corner
+        -0.350f, 0.5f, 0.0f   // top
+    };
+    float secondTriangle[] {
+        0.0f,  -0.5f, 0.0f,   // left-corner
+        0.75f, -0.5f, 0.0f,   // right-corner
+        0.350f, 0.5f, 0.0f,   // top
     };
 
-    // Generate a new Vertex Buffer Object (VBO), Vertex Array Object (VAO) for the left triangle
-    unsigned int firstVBO, firstVAO;
-    glGenVertexArrays(1, &firstVAO);
-    glGenBuffers(1, &firstVBO);
+    // Generate new Vertex Buffer (VBO) and Vertex Array (VAO) objects
+    unsigned int VBOs[2], VAOs[2];
+    glGenVertexArrays(2, VAOs);
+    glGenBuffers(2, VBOs);
 
-    // Bind the Vertex Array Object first (VAO)
-    glBindVertexArray(firstVAO);
+    // Bind the Vertex Array Object of the first triangle (VAO)
+    glBindVertexArray(VAOs[0]);
 
-    // Bind the newly created VBO to the GL_ARRAY_BUFFER target and upload vertex data to the gpu
-    glBindBuffer(GL_ARRAY_BUFFER, firstVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(firstVertices), firstVertices, GL_STATIC_DRAW);
+    // Bind the the first triangle's VBO to the GL_ARRAY_BUFFER target and upload vertex data to the gpu
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle, GL_STATIC_DRAW);
 
-    // Specify the layout of the vertex data in the vertex buffer and enable the vertex attribute array at location 0
+    // Specify the layout of the vertex data in the vertex buffer and enable the vertex attribute array at location 0 for the first triangle
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Bind the Vertex Array Object of the second triangle (VAO)
+    glBindVertexArray(VAOs[1]);
+
+    // Bind the the second triangle's VBO to the GL_ARRAY_BUFFER target and upload vertex data to the gpu
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle, GL_STATIC_DRAW);
+
+    // Specify the layout of the vertex data in the vertex buffer and enable the vertex attribute array at location 0 for the second triangle
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -165,7 +181,7 @@ int main()
     // Draw wireframe polygons
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    /* TRIANGLE ENDS HERE */
+    /* TRIANGLES END HERE */
     /* RENDERING STARTS HERE */
 
     // Render loop (each iteration is a frame)
@@ -177,11 +193,16 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Draw our polygon
+        // Change current program to shaderProgram
         glUseProgram(shaderProgram);
-        glBindVertexArray(firstVAO);
+
+        // Draw left triangle
+        glBindVertexArray(VAOs[0]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // Draw the right triangle
+        glBindVertexArray(VAOs[1]);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
@@ -191,9 +212,9 @@ int main()
     /* RENDERING ENDS HERE */
 
     // De-allocate all remaining resources
-
-
-
+    glDeleteVertexArrays(sizeof(VAOs), VAOs);
+    glDeleteBuffers(sizeof(VBOs), VBOs);
+    glDeleteProgram(shaderProgram);
 
     // Close GLFW
     glfwTerminate();
