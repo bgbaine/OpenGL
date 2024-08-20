@@ -133,14 +133,14 @@ int main()
     /* SHADER PROGRAM ENDS HERE */
 
     /* SHADERS END HERE */
-    /* TRIANGLE STARTS HERE */
+    /* SQUARE STARTS HERE */
 
     // Specify the unique vertices (NDC)
     float vertices[] = {
          0.5f,  0.5f, 0.0f, // Top left
          0.5f, -0.5f, 0.0f, // Bottom right
         -0.5f, -0.5f, 0.0f, // Bottom Left
-        -0.5f,  0.5f, 0.0f // Top right
+        -0.5f,  0.5f, 0.0f  // Top right
     };
 
     // Specify the indices to draw
@@ -177,7 +177,7 @@ int main()
     // Draw wireframe polygons
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    /* TRIANGLE ENDS HERE */
+    /* SQUARE ENDS HERE */
     /* RENDERING STARTS HERE */
 
     // Render loop (each iteration is a frame)
