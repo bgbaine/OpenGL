@@ -1,0 +1,11 @@
+CXX = PATH/g++.exe
+CXXFLAGS = -g -std=c++17 -I PATH/opengl/include
+LDFLAGS = -L PATH/opengl/lib -lglfw3dll
+SOURCES = PATH/opengl/src/$(f).cpp PATH/opengl/src/glad.c
+OUTPUT = PATH/opengl/LearnOpenGL.exe
+
+# Default value for filename if not provided
+f ?= main
+
+gl:
+	$(CXX) $(CXXFLAGS) $(SOURCES) $(LDFLAGS) -o $(OUTPUT)
